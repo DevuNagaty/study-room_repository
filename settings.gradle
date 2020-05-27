@@ -1,0 +1,2 @@
+rootProject.name='Room + Repository Study'
+include ':app'
