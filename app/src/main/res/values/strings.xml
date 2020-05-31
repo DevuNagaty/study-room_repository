@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Room + Repository Study</string>
+    <string name="add_media">Add media</string>
+    <string name="dialog_title">Enter title and artist</string>
+    <string name="hint_title">Title</string>
+    <string name="hint_artist">Artist</string>
+    <string name="button_add">Add</string>
+    <string name="button_cancel">Cancel</string>
 </resources>
