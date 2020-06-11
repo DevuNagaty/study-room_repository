@@ -11,7 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Media::class], version = 1)
+@Database(entities = [Media::class], version = 2)
 abstract class MediaRoomDatabase : RoomDatabase() {
     private val TAG = this::class.java.simpleName
 
@@ -24,7 +24,6 @@ abstract class MediaRoomDatabase : RoomDatabase() {
         // The app should only have one RoomDatabase instance, so it is best to implement
         // defensive code within the class to prevent more than one instance being created.
         fun getDatabase(context: Context, scope: CoroutineScope): MediaRoomDatabase {
-            Log.v(TAG, "getDatabase()")
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -67,16 +66,17 @@ abstract class MediaRoomDatabase : RoomDatabase() {
         }
 
         fun populateDatabase(mediaDoa: MediaDoa) {
+            val totalCount = 10
             for (i in 1..5) {
                 val title = "Title-%d".format(i)
                 val artist = "Artist-%d".format(i)
-                mediaDoa.insert(Media(0, 0, title, artist))
+                mediaDoa.insert(Media(0, title, artist, i, totalCount, i - 1))
             }
 
             // Title only
             for (i in 6..10) {
                 val title = "Title-%d".format(i)
-                mediaDoa.insert(Media(0, title))
+                mediaDoa.insert(Media(title, i, totalCount, i - 1))
             }
         }
     }

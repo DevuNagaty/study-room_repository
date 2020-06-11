@@ -11,10 +11,26 @@ data class Media(
     @NonNls
     @ColumnInfo(name = "mediaId")
     var id: Int,
-    var parentId: Int,
     var title: String,
-    var artist: String?
+    var artist: String?,
+    var trackNumber: Int,
+    var totalTrackCount: Int,
+    // `orderIndex` is start from 0
+    var orderIndex: Int
 ) {
-    constructor(parentId: Int, title: String, artist: String?) : this(0, parentId, title, artist)
-    constructor(parentId: Int, title: String) : this(0, parentId, title, null)
+    constructor(
+        title: String,
+        artist: String?,
+        trackNumber: Int,
+        totalTrackCount: Int,
+        orderIndex: Int
+    ) : this(0, title, artist, trackNumber, totalTrackCount, orderIndex)
+
+    // No artist
+    constructor(
+        title: String,
+        trackNumber: Int,
+        totalTrackCount: Int,
+        orderIndex: Int
+    ) : this(0, title, null, trackNumber, totalTrackCount, orderIndex)
 }

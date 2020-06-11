@@ -10,6 +10,9 @@ import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_DRAG
+import androidx.recyclerview.widget.ItemTouchHelper.ACTION_STATE_IDLE
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gmail.devu.study.room_repository.R
@@ -30,13 +33,15 @@ class MainFragment : Fragment() {
                               savedInstanceState: Bundle?): View {
         val view = inflater.inflate(R.layout.main_fragment, container, false)
 
-        // Set the adapter
+        // Setup the adapter
         viewAdapter = MediaListAdapter()
         view.findViewById<RecyclerView>(R.id.media_list).apply {
             adapter = viewAdapter
             layoutManager = LinearLayoutManager(context)
+            itemTouchHelper.attachToRecyclerView(this)
         }
 
+        // Setup the 'Add' button
         view.findViewById<FloatingActionButton>(R.id.meida_add).apply {
             setOnClickListener {
                 val dialog_view =
@@ -50,10 +55,12 @@ class MainFragment : Fragment() {
 
                         if (title.isNotEmpty()) {
                             Log.v(
-                                TAG,
-                                "title: %s, artist: %s".format(title.toString(), artist.toString())
+                                TAG, "Add title: %s, artist: %s".format(
+                                    title.toString(),
+                                    artist.toString()
+                                )
                             )
-                            viewModel.insert(Media(0, title.toString(), artist.toString()))
+                            viewModel.insert(Media(0, title.toString(), artist.toString(), 0, 0, 0))
                         }
                     }
                     .setNegativeButton(R.string.button_cancel, null)
@@ -80,4 +87,52 @@ class MainFragment : Fragment() {
         })
     }
 
+    private val itemTouchHelper by lazy {
+        ItemTouchHelper(object : ItemTouchHelper.Callback() {
+            private var moving: Boolean = false
+            private var oldPos: Int = 0
+            private var newPos: Int = 0
+
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int =
+                makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.RIGHT)
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                // Save position, then update data upon completion of drag and drop
+                moving = true
+                oldPos = viewHolder.adapterPosition
+                newPos = target.adapterPosition
+                Log.v(TAG, "onMove(%d -> %d)".format(oldPos, newPos))
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val pos = viewHolder.adapterPosition
+                Log.v(TAG, "onSwiped(%d, %d)".format(pos, direction))
+                viewModel.removeAt(pos)
+            }
+
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(viewHolder, actionState)
+                when (actionState) {
+                    ACTION_STATE_DRAG -> {
+                        Log.v(TAG, "onSelectedChanged(ACTION_STATE_DRAG)")
+                    }
+                    ACTION_STATE_IDLE -> {
+                        Log.v(TAG, "onSelectedChanged(ACTION_STATE_IDLE)")
+                        if (moving) {
+                            moving = false
+                            viewModel.move(oldPos, newPos)
+                        }
+                    }
+                }
+            }
+        })
+    }
 }

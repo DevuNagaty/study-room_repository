@@ -26,6 +26,9 @@ class MediaListAdapter : RecyclerView.Adapter<MediaListAdapter.MediaItemViewHold
         val mediaIdView: TextView = view.media_id
         val titleView: TextView = view.title
         val artistView: TextView = view.artist
+        val trackNumberView: TextView = view.track_number
+        val totalTrackCountView: TextView = view.total_track_count
+        val orderIndexView: TextView = view.order_index
     }
 
     override fun onCreateViewHolder(
@@ -43,9 +46,14 @@ class MediaListAdapter : RecyclerView.Adapter<MediaListAdapter.MediaItemViewHold
     ) {
         val media = medias[position]
 
-        holder.mediaIdView.text = media.id.toString()
-        holder.titleView.text = media.title
-        holder.artistView.text = media.artist
+        holder.apply {
+            mediaIdView.text = media.id.toString()
+            titleView.text = media.title
+            artistView.text = media.artist
+            trackNumberView.text = media.trackNumber.toString()
+            totalTrackCountView.text = media.totalTrackCount.toString()
+            orderIndexView.text = media.orderIndex.toString()
+        }
     }
 
     override fun getItemCount(): Int {
